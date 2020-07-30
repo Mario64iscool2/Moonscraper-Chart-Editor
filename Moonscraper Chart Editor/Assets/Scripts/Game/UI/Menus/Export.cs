@@ -143,7 +143,7 @@ public class Export : DisplayMenu {
             float songLength = editor.currentSongLength;
 
             saveDirectory = saveDirectory.Replace('\\', '/');
-            saveDirectory = Path.Combine(saveDirectory, song.name);
+            saveDirectory = Path.Combine(saveDirectory, FileExplorer.StripIllegalChars(song.name));
 
             // Check if files exist at the current directory and ask user before overwriting.
             if (Directory.Exists(saveDirectory)) {
@@ -220,8 +220,22 @@ public class Export : DisplayMenu {
 
         Debug.Log("Total exporting time: " + (Time.realtimeSinceStartup - timer));
 
+        if (exportOptions.format == ExportOptions.Format.Midi)
+        {
+            bool hasErrors;
+            SongValidate.ValidationParameters validateParams = new SongValidate.ValidationParameters() { songLength = editor.currentSongLength, checkMidiIssues = true, };
+            string validationErrors = SongValidate.GenerateReport(SongValidate.ValidationOptions.CloneHero, editor.currentSong, validateParams, out hasErrors);
+
+            if (hasErrors)
+            {
+                errorMessageList += '\n';
+                errorMessageList += validationErrors;
+            }
+        }
+
         if (errorMessageList != string.Empty)
         {
+            Disable();
             ChartEditor.Instance.errorManager.QueueErrorMessage("Encountered the following errors while exporting: " + Globals.LINE_ENDING + errorMessageList);
         }
     }
@@ -428,48 +442,10 @@ public class Export : DisplayMenu {
 
         Directory.CreateDirectory(destFolderPath);
 
-        List<LoadingTask> tasks = new List<LoadingTask>()
-        {
-            new LoadingTask("Re-encoding audio to .ogg format", () =>
-            {
-                ExportSongAudioOgg(destFolderPath, newSong);
-            }),
+        List<LoadingTask> tasks = new List<LoadingTask>();
 
-            new LoadingTask("Exporting chart", () =>
-            {
-                string chartOutputFile = Path.Combine(destFolderPath, "notes.chart");
-
-                // Set audio location after audio files have already been created as set won't won't if the files don't exist
-                foreach (Song.AudioInstrument audio in EnumX<Song.AudioInstrument>.Values)
-                {
-                    if (song.GetAudioLocation(audio) != string.Empty)
-                    {
-                        string audioFilename = GetCHOggFilename(audio);
-                        string audioPath = Path.Combine(destFolderPath, audioFilename);
-                        newSong.SetAudioLocation(audio, audioPath);
-                    }
-                }
-
-                new ChartWriter(chartOutputFile).Write(newSong, exportOptions, out errorMessageList);
-                GenerateSongIni(destFolderPath, newSong, songLengthSeconds);
-            }),
-        };
-
-        tasksManager.KickTasks(tasks);
-
-        while (tasksManager.isRunningTask)
-            yield return null;
-
-        Debug.Log("Total exporting time: " + (Time.realtimeSinceStartup - timer));
-
-        if (errorMessageList != string.Empty)
-        {
-            ChartEditor.Instance.errorManager.QueueErrorMessage("Encountered the following errors while exporting: " + Globals.LINE_ENDING + errorMessageList);
-        }
-    }
-
-    static void ExportSongAudioOgg(string destFolderPath, Song song)
-    {
+        // Determine how many actions ahead of time so that we can display progress of how many songs it has re-encoded, eg "(1/2)"
+        List<Action> songEncodeActions = new List<Action>();
         foreach (Song.AudioInstrument audio in EnumX<Song.AudioInstrument>.Values)
         {
             string audioLocation = song.GetAudioLocation(audio);
@@ -484,15 +460,55 @@ public class Export : DisplayMenu {
 
             string newAudioName = GetCHOggFilename(audio);
 
-            if (string.IsNullOrEmpty(newAudioName)) {
+            if (string.IsNullOrEmpty(newAudioName))
+            {
                 Debug.LogErrorFormat("Audio instrument {0} not set up in ch name dict. Skipping.", audio.ToString());
                 continue;
             }
 
             string outputFile = Path.Combine(destFolderPath, newAudioName);
 
-            Debug.LogFormat("Converting ogg from {0} to {1}", audioLocation, outputFile);
-            AudioManager.ConvertToOgg(audioLocation, outputFile);
+            songEncodeActions.Add(() =>
+            {
+                Debug.LogFormat("Converting ogg from {0} to {1}", audioLocation, outputFile);
+                AudioManager.ConvertToOgg(audioLocation, outputFile);
+            });         
+        }
+
+        for (int i = 0; i < songEncodeActions.Count; ++i)
+        {
+            tasks.Add(new LoadingTask(string.Format("Re-encoding audio to .ogg format ({0}/{1})", i + 1, songEncodeActions.Count), songEncodeActions[i]));
+        }
+
+        tasks.Add(new LoadingTask("Exporting chart", () =>
+        {
+            string chartOutputFile = Path.Combine(destFolderPath, "notes.chart");
+
+            // Set audio location after audio files have already been created as set won't won't if the files don't exist
+            foreach (Song.AudioInstrument audio in EnumX<Song.AudioInstrument>.Values)
+            {
+                if (song.GetAudioLocation(audio) != string.Empty)
+                {
+                    string audioFilename = GetCHOggFilename(audio);
+                    string audioPath = Path.Combine(destFolderPath, audioFilename);
+                    newSong.SetAudioLocation(audio, audioPath);
+                }
+            }
+
+            new ChartWriter(chartOutputFile).Write(newSong, exportOptions, out errorMessageList);
+            GenerateSongIni(destFolderPath, newSong, songLengthSeconds);
+        }));
+
+        tasksManager.KickTasks(tasks);
+
+        while (tasksManager.isRunningTask)
+            yield return null;
+
+        Debug.Log("Total exporting time: " + (Time.realtimeSinceStartup - timer));
+
+        if (errorMessageList != string.Empty)
+        {
+            ChartEditor.Instance.errorManager.QueueErrorMessage("Encountered the following errors while exporting: " + Globals.LINE_ENDING + errorMessageList);
         }
     }
 }

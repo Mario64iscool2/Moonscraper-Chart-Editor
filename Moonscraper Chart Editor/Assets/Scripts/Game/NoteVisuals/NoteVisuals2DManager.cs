@@ -49,7 +49,10 @@ public class NoteVisuals2DManager : NoteVisualsManager {
                 // It's possible there's some weird GH3 code that are scaling them in a strage way.
                 // We're simply correcting for that and making them fit.
                 if (note.guitarFret == Note.GuitarFret.Open)
-                    scale = new Vector3(1.2f, 1, 1);
+                {
+                    float xScale = 1.2f;
+                    scale = new Vector3(xScale, 1, 1);
+                }
                 else if (specialType == Note.SpecialType.StarPower)
                     scale = new Vector3(1.2f, 1.2f, 1);
             }
@@ -74,7 +77,9 @@ public class NoteVisuals2DManager : NoteVisualsManager {
             }
         }
 
-        transform.localScale = scale; 
+        transform.localScale = scale;
+
+        UpdateTextDisplay(note);
     }
 
     void UpdateGlobalAnimationFrame()

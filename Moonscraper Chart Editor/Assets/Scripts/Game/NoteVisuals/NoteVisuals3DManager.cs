@@ -60,6 +60,8 @@ public class NoteVisuals3DManager : NoteVisualsManager
             Chart.GameMode gameMode = editor.currentGameMode;
             Note.NoteType visualNoteType = noteType;
 
+            Vector3 scale = new Vector3(1, 1, 1);
+
             // Determine materials
             if (note.IsOpenNote())
             {
@@ -142,8 +144,11 @@ public class NoteVisuals3DManager : NoteVisualsManager
                 materials = GetMaterials(colorMat, visualNoteType);
             }
 
+            transform.localScale = scale;
             noteRenderer.sharedMaterials = materials;
         }
+
+        UpdateTextDisplay(note);
     }
 
     Material[] GetMaterials(Material colorMat, Note.NoteType visualNoteType)

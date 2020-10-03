@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2016-2020 Alexander Ong
 // See LICENSE in project root for license information.
 
+// Chart file format specifications- https://docs.google.com/document/d/1v2v0U-9HQ5qHeccpExDOLJ5CMPZZ3QytPmAG5WF0Kzs/edit?usp=sharing
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -72,6 +74,10 @@ namespace MoonscraperChartEditor.Song.IO
             { 3, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.DrumPad.Blue); }},
             { 4, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.DrumPad.Orange); }},
             { 5, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.DrumPad.Green); }},
+
+            { ChartIOHelper.c_instrumentPlusOffset, (in NoteProcessParams noteProcessParams) => {
+                ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.DrumPad.Kick, Note.Flags.DoubleKick);
+            } },
 
             { ChartIOHelper.c_proDrumsOffset + 2, (in NoteProcessParams noteProcessParams) => {
                 ProcessNoteOnEventAsNoteFlagToggle(noteProcessParams, (int)Note.DrumPad.Yellow, Note.Flags.ProDrums_Cymbal);

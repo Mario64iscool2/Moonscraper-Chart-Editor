@@ -91,8 +91,12 @@ public class Services : MonoBehaviour
     {
         get
         {
-            if (EventSystem.current.currentSelectedGameObject == null ||
-                EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() == null)
+            if (
+                EventSystem.current.currentSelectedGameObject == null ||
+                (EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() == null &&
+                EventSystem.current.currentSelectedGameObject.GetComponent<TMPro.TMP_InputField>() == null &&
+                EventSystem.current.currentSelectedGameObject.GetComponent<MS_TMPro_InputField>() == null)
+                )
                 return false;
             else
                 return true;

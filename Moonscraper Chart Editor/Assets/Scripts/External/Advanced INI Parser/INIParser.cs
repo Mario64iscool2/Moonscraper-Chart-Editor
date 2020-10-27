@@ -673,6 +673,104 @@ public class INIParser
         WriteValue(SectionName, Key, Value.ToString(CultureInfo.InvariantCulture));
     }
 
+    /******* Custom stuff *************/
+
+    public enum Formatting
+    {
+        Default,        // Leaves strings as is
+        Whitespaced,    // Adds whitespace after keys and before values if there aren't already
+    }
+
+    public string GetSectionValues(string[] SectionNames, Formatting formatting = Formatting.Default)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        foreach (var SectionName in SectionNames)
+        {
+            Dictionary<string, string> Section;
+            if (!m_Sections.TryGetValue(SectionName, out Section))
+            {
+                continue;
+            }
+
+            foreach (var keyVal in Section)
+            {
+                if (keyVal.Key.Trim() != string.Empty)
+                {
+                    switch (formatting)
+                    {
+                        case Formatting.Whitespaced:
+                            {
+                                sb.Append(keyVal.Key.Trim());
+                                sb.Append(" = ");
+                                sb.AppendLine(keyVal.Value.Trim());
+                            }
+                            break;
+                        case Formatting.Default:
+                        default:
+                            {
+                                sb.Append(keyVal.Key);
+                                sb.Append('=');
+                                sb.AppendLine(keyVal.Value);
+                            }
+                            break;
+                    }
+                    
+                }
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    public bool IsEmpty
+    {
+        get
+        {
+            foreach (var keyVal in m_Sections)
+            {
+                if (keyVal.Value.Count > 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    // Copies all data from the ini passed into this
+    public void WriteValue(INIParser that)
+    {
+        bool autoFlush = m_AutoFlush;
+
+        m_AutoFlush = false;
+
+        // Clear all previous data
+        List<string> sectionsToDelete = new List<string>();
+        foreach (var Section in m_Sections)
+        {
+            sectionsToDelete.Add(Section.Key);
+        }
+
+        foreach (var Section in sectionsToDelete)
+        {
+            SectionDelete(Section);
+        }
+
+        foreach (var Section in that.m_Sections)
+        {
+            foreach (var SectionVal in Section.Value)
+            {
+                WriteValue(Section.Key, SectionVal.Key, SectionVal.Value);
+            }
+        }
+
+        // Finally write to the file
+        m_AutoFlush = autoFlush;
+        PerformFlush();
+    }
+
     #endregion
 }
 

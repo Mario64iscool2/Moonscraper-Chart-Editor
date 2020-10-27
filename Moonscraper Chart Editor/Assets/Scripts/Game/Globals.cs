@@ -21,10 +21,16 @@ public class Globals : MonoBehaviour {
     static string workingDirectory = string.Empty;
     public static string realWorkingDirectory { get { return workingDirectory; } }
 
-    public static readonly string[] validAudioExtensions = { ".ogg", ".wav", ".mp3" };
+    public static readonly string[] validAudioExtensions = { ".ogg", ".wav", ".mp3", ".opus" };
     public static readonly string[] validTextureExtensions = { ".jpg", ".png" };
     public static string[] localEvents = { };
     public static string[] globalEvents = { };
+
+#if UNITY_EDITOR
+    public static readonly string CONFIG_FOLDER = Path.Combine("ExtraBuildFiles", "Config");
+#else
+    public static readonly string CONFIG_FOLDER = "Config";
+#endif
 
     public static GameSettings gameSettings { get; private set; }
 
@@ -90,8 +96,8 @@ public class Globals : MonoBehaviour {
         LoadGameSettings();
         Localiser.LocaliseScene();
 
-        localEvents = LoadCommonEvents("local_events.txt");
-        globalEvents = LoadCommonEvents("global_events.txt");
+        localEvents = LoadCommonEvents(Path.Combine(CONFIG_FOLDER, "local_events.txt"));
+        globalEvents = LoadCommonEvents(Path.Combine(CONFIG_FOLDER, "global_events.txt"));
 
         HintMouseOver.style = hintMouseOverStyle; 
     }
@@ -123,12 +129,9 @@ public class Globals : MonoBehaviour {
 
     static string[] LoadCommonEvents(string filename)
     {
-#if UNITY_EDITOR
-        string filepath = workingDirectory + "/ExtraBuildFiles/" + filename;
-#else
-        string filepath = workingDirectory + "/" + filename;
-#endif
+        string filepath = Path.Combine(workingDirectory, filename);
         Debug.Log(Path.GetFullPath(filepath));
+
         if (File.Exists(filepath))
         {
             Debug.Log("Loading events from " + filepath);
@@ -158,9 +161,11 @@ public class Globals : MonoBehaviour {
             {
                 Debug.LogError("Error: unable to load events- " + e.Message);
             }
-
-            if (ifs != null)
-                ifs.Close();
+            finally
+            {
+                if (ifs != null)
+                    ifs.Close();
+            }
         }
         else
         {

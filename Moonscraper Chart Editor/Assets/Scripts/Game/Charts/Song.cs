@@ -16,6 +16,8 @@ namespace MoonscraperChartEditor.Song
     {
         // Song properties
         public Metadata metaData = new Metadata();
+        public INIParser iniProperties = new INIParser();
+
         public string name
         {
             get
@@ -186,6 +188,10 @@ namespace MoonscraperChartEditor.Song
             {
                 audioLocations[i] = song.audioLocations[i];
             }
+
+            iniProperties = new INIParser();
+            iniProperties.OpenFromString(string.Empty);
+            iniProperties.WriteValue(song.iniProperties);
         }
 
         ~Song()

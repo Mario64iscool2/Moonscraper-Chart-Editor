@@ -400,6 +400,11 @@ public class ChartEditor : UnitySingleton<ChartEditor>
         return songObject.song.TickToWorldYPosition(songObject.tick);
     }
 
+    public static float WorldYPositionLength(Note note)
+    {
+        return note.song.TickToWorldYPosition(note.tick + note.length);
+    }
+
     #region State Control
 
     SystemManagerState GetStateForEnum(State state)
@@ -688,6 +693,31 @@ public class ChartEditor : UnitySingleton<ChartEditor>
 
                     error = true;
                 }
+
+                try
+                {
+                    string directory = System.IO.Path.GetDirectoryName(currentFileName);
+                    string iniPath = System.IO.Path.Combine(directory, "song.ini");
+                    if (System.IO.File.Exists(iniPath))
+                    {
+                        try
+                        {
+                            newSong.iniProperties.Open(iniPath);
+                        }
+                        catch (Exception e)
+                        {
+                            errorManager.QueueErrorMessage(Logger.LogException(e, "Failed to parse song.ini"));
+                        }
+                        finally
+                        {
+                            newSong.iniProperties.Close();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    // TODO
+                }
             }),
 
             new LoadingTask("Loading audio", () =>
@@ -863,6 +893,33 @@ public class ChartEditor : UnitySingleton<ChartEditor>
             if (saveErrorMessage != string.Empty)
             {
                 errorManager.QueueErrorMessage("Save completed with the following errors: " + Globals.LINE_ENDING + saveErrorMessage);
+            }
+
+            string iniPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filepath), SongIniFunctions.INI_FILENAME);
+            if (!song.iniProperties.IsEmpty)
+            {
+                Debug.Log("Saving song.ini");
+
+                INIParser parser = new INIParser();
+                try
+                {
+                    parser.Open(iniPath);
+                    parser.WriteValue(song.iniProperties);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Error encountered when trying to write song.ini. " + e.Message);
+                }
+                finally
+                {
+                    parser.Close();
+                }
+
+                Debug.Log("song.ini save complete!");
+            }
+            else if (System.IO.File.Exists(iniPath))
+            {
+                System.IO.File.Delete(iniPath);
             }
         }
         catch (System.Exception e)
@@ -1070,6 +1127,24 @@ public class ChartEditor : UnitySingleton<ChartEditor>
         if (Globals.gameSettings.resetAfterPlay)
         {
             stopResetTime = currentVisibleTime;
+        }
+
+        {
+            float strikelineYPos = visibleStrikeline.position.y;
+
+            // Hide everything behind the strikeline
+            foreach (Note note in currentChart.notes)
+            {
+                if (note.controller)
+                {
+                    if (WorldYPositionLength(note) < strikelineYPos)    // Allows the bot to continue to hit sustains upon play
+                    {
+                        note.controller.HideFullNote();
+                    }
+                    else
+                        break;
+                }
+            }
         }
 
         foreach (HitAnimation hitAnim in indicators.animations)

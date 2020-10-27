@@ -11,9 +11,11 @@ using System;
 using MoonscraperEngine;
 using MoonscraperChartEditor.Song;
 
-public class SongPropertiesPanelController : DisplayMenu {
+public class SongPropertiesPanelController : TabMenu
+{
     public Scrollbar verticalScroll;
 
+    [Header("General Settings")]
     public InputField songName;
     public InputField artist;
     public InputField charter;
@@ -24,6 +26,7 @@ public class SongPropertiesPanelController : DisplayMenu {
     public InputField genre;
     public InputField mediaType;
 
+    [Header("Audio Settings")]
     public Text musicStream;
     public Text guitarStream;
     public Text bassStream;
@@ -36,21 +39,29 @@ public class SongPropertiesPanelController : DisplayMenu {
 	public Text drum4Stream;
     public Text crowdStream;
 
+    [Header("Advanced Settings")]
+    public MS_TMPro_InputField customIniSettings;
+
     bool init = false;
 
     TimeSpan customTime = new TimeSpan();
 
-    readonly ExtensionFilter audioExFilter = new ExtensionFilter("Audio files", "ogg", "mp3", "wav");
+    static readonly string[] validAudioExtensions = { "ogg", "wav", "mp3", "opus" };
+    readonly ExtensionFilter audioExFilter = new ExtensionFilter("Audio files", validAudioExtensions);
 
     Dictionary<Song.AudioInstrument, Text> m_audioStreamTextLookup;
+    readonly string[] INI_SECTION_HEADER = { "Song", "song" };
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         offset.onValidateInput = LocalesManager.ValidateDecimalInput;
     }
 
     protected override void OnEnable()
     {
+        ResetToInitialMenuItem();
+
         m_audioStreamTextLookup = new Dictionary<Song.AudioInstrument, Text>()
         {
             { Song.AudioInstrument.Song, musicStream },
@@ -90,8 +101,16 @@ public class SongPropertiesPanelController : DisplayMenu {
 
         customTime = TimeSpan.FromSeconds(editor.currentSongLength);
 
+        UpdateIniTextFromSongProperties();
+
         ChartEditor.isDirty = edit;
         StartCoroutine(ScrollSetDelay());
+    }
+
+    protected override void OnDisable()
+    {
+        UpdateIni();
+        base.OnDisable();
     }
 
     IEnumerator ScrollSetDelay()
@@ -100,7 +119,7 @@ public class SongPropertiesPanelController : DisplayMenu {
         verticalScroll.value = 1;
     }
 
-	void Apply()
+    void Apply()
     {
         editor.currentSong.name = songName.text;
         editor.currentSong.metaData.artist = artist.text;
@@ -155,6 +174,75 @@ public class SongPropertiesPanelController : DisplayMenu {
         }
     }
 
+    public void UpdateIni()
+    {
+        Song song = editor.currentSong;
+
+        INIParser newProperties = new INIParser();
+
+        string[] seperatingTags = { Environment.NewLine.ToString(), "\n" };
+        string[] customIniLines = customIniSettings.text.Split(seperatingTags, StringSplitOptions.None);
+
+        foreach (string line in customIniLines)
+        {
+            string[] keyVal = line.Split('=');
+            if (keyVal.Length >= 1)
+            {
+                string key = keyVal[0].Trim();
+                string val = keyVal.Length > 1 ? keyVal[1].Trim() : string.Empty;
+
+                if (!string.IsNullOrEmpty(key))
+                    newProperties.WriteValue(INI_SECTION_HEADER[0], key + " ", " " + val);
+            }
+        }
+
+        song.iniProperties = newProperties;
+    }
+
+    void UpdateIniTextFromSongProperties()
+    {
+        string str = editor.currentSong.iniProperties.GetSectionValues(INI_SECTION_HEADER, INIParser.Formatting.Whitespaced);
+        str = str.Replace("\r\n", "\n");
+        customIniSettings.text = str;
+    }
+
+    public void RefreshIniDisplay()
+    {
+        UpdateIni();
+        UpdateIniTextFromSongProperties();
+        ChartEditor.isDirty = true;
+    }
+
+    public void PopulateIniFromGeneralSettings()
+    {
+        RefreshIniDisplay();
+        SongIniFunctions.PopulateIniWithSongMetadata(editor.currentSong, editor.currentSong.iniProperties, editor.currentSongLength);
+        UpdateIniTextFromSongProperties();
+        ChartEditor.isDirty = true;
+    }
+
+    public void AddCloneHeroIniTags()
+    {
+        RefreshIniDisplay();
+
+        var song = editor.currentSong;
+        var iniParser = song.iniProperties;
+
+        SongIniFunctions.AddCloneHeroIniTags(song, iniParser, editor.currentSongLength);
+        UpdateIniTextFromSongProperties();
+        ChartEditor.isDirty = true;
+    }
+
+    public void OnIniInputValueChanged()
+    {
+        ChartEditor.isDirty = true;
+    }
+
+    public void OnIniInputEndEdit()
+    {
+        RefreshIniDisplay();
+    }
+
     void ClipText(Text text)
     {
         float maxWidth = text.rectTransform.rect.width;
@@ -203,7 +291,16 @@ public class SongPropertiesPanelController : DisplayMenu {
     string GetAudioFile()
     {
         string audioFilepath = string.Empty;
-        FileExplorer.OpenFilePanel(audioExFilter, "mp3,ogg,wav", out audioFilepath);
+        string defExt = string.Empty;
+        foreach(string extention in validAudioExtensions)
+        {
+            if (defExt != string.Empty)
+                defExt += ",";
+
+            defExt += extention;
+        }
+
+        FileExplorer.OpenFilePanel(audioExFilter, defExt, out audioFilepath);
         return audioFilepath;
     }
 

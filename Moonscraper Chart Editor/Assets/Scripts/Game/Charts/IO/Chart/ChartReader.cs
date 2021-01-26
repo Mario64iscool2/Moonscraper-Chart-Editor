@@ -104,6 +104,17 @@ namespace MoonscraperChartEditor.Song.IO
             { 6, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsChordFlag(noteProcessParams, Note.Flags.Tap); }},
         };
 
+        static readonly Dictionary<int, NoteEventProcessFn> RSChartNoteNumberToProcessFnMap = new Dictionary<int, NoteEventProcessFn>()
+        {
+            { 0, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.String1); }},
+            { 1, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.String2); }},
+            { 2, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.String3); }},
+            { 3, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.String4); }},
+            { 4, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.String5); }},
+            { 5, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.String6); }},
+            { 6, (in NoteProcessParams noteProcessParams) => { ProcessNoteOnEventAsNote(noteProcessParams, (int)Note.RealGuitarFret.No); }},
+        };
+
         public static Song ReadChart(string filepath)
         {
             try
@@ -731,6 +742,10 @@ namespace MoonscraperChartEditor.Song.IO
                 case Chart.GameMode.Drums:
                     {
                         return DrumsChartNoteNumberToProcessFnMap;
+                    }
+                case Chart.GameMode.RealInstrument:
+                    {
+                        return RSChartNoteNumberToProcessFnMap;
                     }
 
                 default: break;

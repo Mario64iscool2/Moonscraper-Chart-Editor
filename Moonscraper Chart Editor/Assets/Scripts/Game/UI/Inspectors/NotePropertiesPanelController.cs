@@ -11,11 +11,29 @@ public class NotePropertiesPanelController : PropertiesPanelController {
 
     public Text sustainText;
     public Text fretText;
-    
+    public Text stringText;
     public Toggle tapToggle;
     public Toggle forcedToggle;
     public Toggle cymbalToggle;
     public Toggle doubleKickToggle;
+
+
+    public GameObject scrollView;
+    public Toggle palmMuteToggle;
+    public Toggle fretHandMuteToggle;
+    public Toggle hammerOnToggle;
+    public Toggle pullOffToggle;
+    public Toggle slideToggle;
+    public Toggle unpitchedSlideToggle;
+    public Toggle bendToggle;
+    public Toggle harmonicToggle;
+    public Toggle pinchHarmToggle;
+    public Toggle tremoloToggle;
+    public Toggle slapToggle;
+    public Toggle popToggle;
+    public Toggle ignoreToggle;
+    public Toggle accentToggle;
+    public Toggle rsTapToggle;
 
     public GameObject noteToolObject;
     PlaceNoteController noteToolController;
@@ -84,6 +102,7 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         }
         else if (currentNote != null && (prevClonedNote != currentNote || !valuesAreTheSame))
         {
+            string fretString = string.Empty;
             string noteTypeString = string.Empty;
             if (Globals.drumMode)
             {
@@ -91,12 +110,32 @@ public class NotePropertiesPanelController : PropertiesPanelController {
             }
             else if (Globals.ghLiveMode)
                 noteTypeString = currentNote.ghliveGuitarFret.ToString();
+            else if (Globals.RSMode)
+            {
+                noteTypeString = currentNote.realGuitarFret.ToString();
+                fretString = currentNote.GetRSFret().ToString();
+            }
             else
                 noteTypeString = currentNote.guitarFret.ToString();
 
-            fretText.text = "Fret: " + noteTypeString;
-            positionText.text = "Position: " + currentNote.tick.ToString();
-            sustainText.text = "Length: " + currentNote.length.ToString();
+            if (!Globals.RSMode)
+            {
+                stringText.gameObject.SetActive(false);
+                fretText.text = "Fret: " + noteTypeString;
+                positionText.text = "Position: " + currentNote.tick.ToString();
+                sustainText.text = "Length: " + currentNote.length.ToString();
+                scrollView.SetActive(true);
+            }
+            else
+            {
+                stringText.gameObject.SetActive(true);
+                stringText.text = "String: " + noteTypeString;
+                fretText.text = "Fret: " + fretString;
+                positionText.text = "Position: " + currentNote.tick.ToString();
+                sustainText.text = "Length: " + currentNote.length.ToString();
+                scrollView.SetActive(false);
+            }
+            
 
             prevClonedNote.CopyFrom(currentNote);
             lastKnownKeysModePos = uint.MaxValue;
@@ -142,7 +181,22 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         tapToggle.isOn = (flags & Note.Flags.Tap) != 0;
         cymbalToggle.isOn = (flags & Note.Flags.ProDrums_Cymbal) != 0;
         doubleKickToggle.isOn = (flags & Note.Flags.DoubleKick) != 0;
+        palmMuteToggle.isOn =     (flags & Note.Flags.RS_PalmMute) != 0;
+        fretHandMuteToggle.isOn = (flags & Note.Flags.RS_FretMute) != 0;
+        hammerOnToggle.isOn = (flags & Note.Flags.RS_HammerOn) != 0;
+        pullOffToggle.isOn = (flags & Note.Flags.RS_PullOff) != 0;
+        slideToggle.isOn = (flags & Note.Flags.RS_Slide) != 0;
+        bendToggle.isOn = (flags & Note.Flags.RS_Bend) != 0;
+        harmonicToggle.isOn = (flags & Note.Flags.RS_Harmonic) != 0;
+        pinchHarmToggle.isOn = (flags & Note.Flags.RS_PinchHarmonic) != 0;
+        tremoloToggle.isOn = (flags & Note.Flags.RS_Tremolo) != 0;
+        ignoreToggle.isOn = (flags & Note.Flags.RS_Ignore) != 0;
+        accentToggle.isOn = (flags & Note.Flags.RS_Accent) != 0;
+        slapToggle.isOn = (flags & Note.Flags.RS_Slap) != 0;
+        popToggle.isOn = (flags & Note.Flags.RS_Pop) != 0;
+        rsTapToggle.isOn = (flags & Note.Flags.RS_Tap) != 0;
 
+        
         toggleBlockingActive = false;
     }
 
@@ -151,28 +205,66 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         // Prevent users from forcing notes when they shouldn't be forcable but retain the previous user-set forced property when using the note tool
         bool drumsMode = Globals.drumMode;
         bool proDrumsMode = drumsMode && Globals.gameSettings.drumsModeOptions == GameSettings.DrumModeOptions.ProDrums;
+        bool proStringsMode = Globals.RSMode;
 
-        forcedToggle.gameObject.SetActive(!drumsMode);
-        tapToggle.gameObject.SetActive(!drumsMode);
+        forcedToggle.gameObject.SetActive(!(proStringsMode | drumsMode));
+        tapToggle.gameObject.SetActive(!(drumsMode | proStringsMode));
         cymbalToggle.gameObject.SetActive(proDrumsMode);
         doubleKickToggle.gameObject.SetActive(proDrumsMode);
 
+        palmMuteToggle.gameObject.SetActive(proStringsMode);
+        fretHandMuteToggle.gameObject.SetActive(proStringsMode);
+        hammerOnToggle.gameObject.SetActive(proStringsMode);
+        pullOffToggle.gameObject.SetActive(proStringsMode);
+        slideToggle.gameObject.SetActive(proStringsMode);
+        bendToggle.gameObject.SetActive(proStringsMode);
+        harmonicToggle.gameObject.SetActive(proStringsMode);
+        pinchHarmToggle.gameObject.SetActive(proStringsMode);
+        tremoloToggle.gameObject.SetActive(proStringsMode);
+        ignoreToggle.gameObject.SetActive(proStringsMode);
+        accentToggle.gameObject.SetActive(proStringsMode);
+        slapToggle.gameObject.SetActive(proStringsMode);
+        popToggle.gameObject.SetActive(proStringsMode);
+        rsTapToggle.gameObject.SetActive(proStringsMode);
+        
+
         if (!drumsMode)
         {
-            if (IsInNoteTool() && (noteToolObject.activeSelf || Globals.gameSettings.keysModeEnabled))
+            if (!proStringsMode)
             {
-                forcedToggle.interactable = noteToolController.forcedInteractable;
-                tapToggle.interactable = noteToolController.tapInteractable;
-            }
-            else if (!IsInNoteTool())
-            {
-                forcedToggle.interactable = !(currentNote.cannotBeForced && !Globals.gameSettings.keysModeEnabled);
-                tapToggle.interactable = !currentNote.IsOpenNote();
+                if (IsInNoteTool() && (noteToolObject.activeSelf || Globals.gameSettings.keysModeEnabled))
+                {
+                    forcedToggle.interactable = noteToolController.forcedInteractable;
+                    tapToggle.interactable = noteToolController.tapInteractable;
+                }
+                else if (!IsInNoteTool())
+                {
+                    forcedToggle.interactable = !(currentNote.cannotBeForced && !Globals.gameSettings.keysModeEnabled);
+                    tapToggle.interactable = !currentNote.IsOpenNote();
+                }
+                else
+                {
+                    forcedToggle.interactable = true;
+                    tapToggle.interactable = true;
+                }
             }
             else
             {
-                forcedToggle.interactable = true;
-                tapToggle.interactable = true;
+                if (IsInNoteTool() && (noteToolObject.activeSelf || Globals.gameSettings.keysModeEnabled))
+                {
+                    forcedToggle.interactable = noteToolController.forcedInteractable;
+                    tapToggle.interactable = noteToolController.tapInteractable;
+                }
+                else if (!IsInNoteTool())
+                {
+                    forcedToggle.interactable = !(currentNote.cannotBeForced && !Globals.gameSettings.keysModeEnabled);
+                    tapToggle.interactable = !currentNote.IsOpenNote();
+                }
+                else
+                {
+                    forcedToggle.interactable = true;
+                    tapToggle.interactable = true;
+                }
             }
         }
         else
@@ -262,6 +354,587 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         }
     }
 
+
+    #region ROCKSMITH_FLAGS
+
+    public void setPalmMute()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetPalmMuteNoteTool();
+        }
+        else
+        {
+            SetPalmMuteNote();
+        }
+    }
+    void SetPalmMuteNoteTool()
+    {
+        if (palmMuteToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, palmMuteToggle, Note.Flags.RS_PalmMute);
+    }
+
+    void SetPalmMuteNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (palmMuteToggle.isOn)
+                    newFlags |= Note.Flags.RS_PalmMute;
+                else
+                    newFlags &= ~Note.Flags.RS_PalmMute;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setFretMute()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetFretMuteNoteTool();
+        }
+        else
+        {
+            SetFretMuteNote();
+        }
+    }
+    void SetFretMuteNoteTool()
+    {
+        if (palmMuteToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, fretHandMuteToggle, Note.Flags.RS_FretMute);
+    }
+
+    void SetFretMuteNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (fretHandMuteToggle.isOn)
+                    newFlags |= Note.Flags.RS_FretMute;
+                else
+                    newFlags &= ~Note.Flags.RS_FretMute;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setRSTap()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetRSTapNoteTool();
+        }
+        else
+        {
+            SetRSTapNote();
+        }
+    }
+    void SetRSTapNoteTool()
+    {
+        if (rsTapToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, rsTapToggle, Note.Flags.RS_Tap);
+    }
+
+    void SetRSTapNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (rsTapToggle.isOn)
+                    newFlags |= Note.Flags.RS_Tap;
+                else
+                    newFlags &= ~Note.Flags.RS_Tap;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setHammerOn()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetHammerOnNoteTool();
+        }
+        else
+        {
+            SetHammerOnNote();
+        }
+    }
+    void SetHammerOnNoteTool()
+    {
+        if (hammerOnToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, hammerOnToggle, Note.Flags.RS_HammerOn);
+    }
+
+    void SetHammerOnNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (hammerOnToggle.isOn)
+                    newFlags |= Note.Flags.RS_HammerOn;
+                else
+                    newFlags &= ~Note.Flags.RS_HammerOn;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setPullOff()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetPullOffNoteTool();
+        }
+        else
+        {
+            SetPullOffNote();
+        }
+    }
+    void SetPullOffNoteTool()
+    {
+        if (pullOffToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, pullOffToggle, Note.Flags.RS_PullOff);
+    }
+
+    void SetPullOffNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (pullOffToggle.isOn)
+                    newFlags |= Note.Flags.RS_PullOff;
+                else
+                    newFlags &= ~Note.Flags.RS_PullOff;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setHarmonic()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetHarmonicNoteTool();
+        }
+        else
+        {
+            SetHarmonicNote();
+        }
+    }
+    void SetHarmonicNoteTool()
+    {
+        if (harmonicToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, harmonicToggle, Note.Flags.RS_Harmonic);
+    }
+
+    void SetHarmonicNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (harmonicToggle.isOn)
+                    newFlags |= Note.Flags.RS_Harmonic;
+                else
+                    newFlags &= ~Note.Flags.RS_Harmonic;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setPinchHarmonic()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetPinchHarmonicNoteTool();
+        }
+        else
+        {
+            SetPinchHarmonicNote();
+        }
+    }
+    void SetPinchHarmonicNoteTool()
+    {
+        if (pinchHarmToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, pinchHarmToggle, Note.Flags.RS_PinchHarmonic);
+    }
+
+    void SetPinchHarmonicNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (pinchHarmToggle.isOn)
+                    newFlags |= Note.Flags.RS_PinchHarmonic;
+                else
+                    newFlags &= ~Note.Flags.RS_PinchHarmonic;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setSlide()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetSlideNoteTool();
+        }
+        else
+        {
+            SetSlideNote();
+        }
+    }
+    void SetSlideNoteTool()
+    {
+        if (slideToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, slideToggle, Note.Flags.RS_Slide);
+    }
+
+    void SetSlideNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (slideToggle.isOn)
+                    newFlags |= Note.Flags.RS_Slide;
+                else
+                    newFlags &= ~Note.Flags.RS_Slide;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setUnpitchedSlide()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetUnpitchedSlideNoteTool();
+        }
+        else
+        {
+            SetUnpitchedSlideNote();
+        }
+    }
+    void SetUnpitchedSlideNoteTool()
+    {
+        if (unpitchedSlideToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, unpitchedSlideToggle, Note.Flags.RS_UnpitchedSlide);
+    }
+
+    void SetUnpitchedSlideNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (unpitchedSlideToggle.isOn)
+                    newFlags |= Note.Flags.RS_UnpitchedSlide;
+                else
+                    newFlags &= ~Note.Flags.RS_UnpitchedSlide;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setBend()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetBendNoteTool();
+        }
+        else
+        {
+            SetBendNote();
+        }
+    }
+    void SetBendNoteTool()
+    {
+        if (bendToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, bendToggle, Note.Flags.RS_Bend);
+    }
+
+    void SetBendNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (bendToggle.isOn)
+                    newFlags |= Note.Flags.RS_Bend;
+                else
+                    newFlags &= ~Note.Flags.RS_Bend;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setSlap()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetSlapNoteTool();
+        }
+        else
+        {
+            SetSlapNote();
+        }
+    }
+
+    void SetSlapNoteTool()
+    {
+        if (slapToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, slapToggle, Note.Flags.RS_Slap);
+    }
+
+    void SetSlapNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (slapToggle.isOn)
+                    newFlags |= Note.Flags.RS_Slap;
+                else
+                    newFlags &= ~Note.Flags.RS_Slap;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setPop()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetPopNoteTool();
+        }
+        else
+        {
+            SetPopNote();
+        }
+    }
+
+    void SetPopNoteTool()
+    {
+        if (popToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, popToggle, Note.Flags.RS_Pop);
+    }
+
+    void SetPopNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (popToggle.isOn)
+                    newFlags |= Note.Flags.RS_Pop;
+                else
+                    newFlags &= ~Note.Flags.RS_Pop;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setIgnore()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetIgnoreNoteTool();
+        }
+        else
+        {
+            SetIgnoreNote();
+        }
+    }
+
+    void SetIgnoreNoteTool()
+    {
+        if (ignoreToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, ignoreToggle, Note.Flags.RS_Ignore);
+    }
+
+    void SetIgnoreNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (ignoreToggle.isOn)
+                    newFlags |= Note.Flags.RS_Ignore;
+                else
+                    newFlags &= ~Note.Flags.RS_Ignore;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setTremolo()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetTremoloNoteTool();
+        }
+        else
+        {
+            SetTremoloNote();
+        }
+    }
+
+    void SetTremoloNoteTool()
+    {
+        if (tremoloToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, tremoloToggle, Note.Flags.RS_Tremolo);
+    }
+
+    void SetTremoloNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (tremoloToggle.isOn)
+                    newFlags |= Note.Flags.RS_Tremolo;
+                else
+                    newFlags &= ~Note.Flags.RS_Tremolo;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    public void setAccent()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetAccentNoteTool();
+        }
+        else
+        {
+            SetAccentNote();
+        }
+    }
+
+    void SetAccentNoteTool()
+    {
+        if (accentToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, accentToggle, Note.Flags.RS_Accent);
+    }
+
+    void SetAccentNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (accentToggle.isOn)
+                    newFlags |= Note.Flags.RS_Accent;
+                else
+                    newFlags &= ~Note.Flags.RS_Accent;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+    #endregion
+
+
     void SetNoteToolFlag(ref Note.Flags flags, Toggle uiToggle, Note.Flags flagsToToggle)
     {
         if ((flags & flagsToToggle) == 0)
@@ -269,6 +942,7 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         else
             flags &= ~flagsToToggle;
     }
+
 
     public void setForced()
     {
@@ -406,4 +1080,5 @@ public class NotePropertiesPanelController : PropertiesPanelController {
             noteToolController.desiredFlags = newFlags;
         }
     }
+
 }

@@ -21,6 +21,7 @@ public class EditorObjectToolManager : System.Object
         BPM,
         TimeSignature,
         Section,
+        Handshape,
     }
 
     public enum ViewModeMaybe

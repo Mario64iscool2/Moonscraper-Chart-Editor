@@ -148,6 +148,21 @@ namespace MoonscraperChartEditor.Song
                     case (Instrument.GHLiveBass):
                         instrumentName += "GHLive Bass - ";
                         break;
+                    case (Instrument.RealGuitar):
+                        instrumentName += "Rocksmith/Rock Band Pro Guitar - ";
+                        break;
+                    case (Instrument.RealGuitar22):
+                        instrumentName += "22 Fret Rocksmith/Rock Band Pro Guitar - ";
+                        break;
+                    case (Instrument.RealBass):
+                        instrumentName += "Rocksmith/Rock Band Pro Bass - ";
+                        break;
+                    case (Instrument.RealBass22):
+                        instrumentName += "22 Fret Rocksmith/Rock Band Pro Bass - ";
+                        break;
+                    case (Instrument.BonusRealGuitar):
+                        instrumentName += "Bonus Rocksmith/Rock Band Pro Guitar - ";
+                        break;
                     default:
                         continue;
                 }
@@ -510,6 +525,13 @@ namespace MoonscraperChartEditor.Song
                 case (Instrument.GHLiveBass):
                     return Chart.GameMode.GHLGuitar;
 
+                case (Instrument.RealGuitar):
+                case (Instrument.RealGuitar22):
+                case (Instrument.RealBass):
+                case (Instrument.RealBass22):
+                case (Instrument.BonusRealGuitar):
+                    return Chart.GameMode.RealInstrument;
+
                 default:
                     break;
             }
@@ -535,6 +557,11 @@ namespace MoonscraperChartEditor.Song
             Drums = 5,
             GHLiveGuitar = 6,
             GHLiveBass = 7,
+            RealGuitar = 8,
+            RealBass = 9,
+            RealGuitar22 = 10,
+            RealBass22 = 11,
+            BonusRealGuitar = 12,
             Unrecognised = 99,
         }
 

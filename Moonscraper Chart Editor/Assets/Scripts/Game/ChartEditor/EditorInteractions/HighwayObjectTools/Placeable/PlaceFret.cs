@@ -12,6 +12,9 @@ public class PlaceFret : PlaceNote {
     [SerializeField]
     Note.GHLiveGuitarFret ghliveFret;
 
+    [SerializeField]
+    Note.RealGuitarFret rsFret;
+
     protected override void Awake()
     {
         base.Awake();
@@ -21,7 +24,18 @@ public class PlaceFret : PlaceNote {
 
     protected override void UpdateFretType()
     {
-        note.rawNote = Globals.ghLiveMode ? (int)ghliveFret : (int)standardFret;
+        if (Globals.RSMode)
+        {
+            note.rawNote = (int)rsFret;
+        }
+        else if (Globals.ghLiveMode)
+        {
+            note.rawNote = (int)ghliveFret;
+        }
+        else
+        {
+            note.rawNote = (int)standardFret;
+        }
     }
 
     public override void ToolDisable()

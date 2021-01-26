@@ -34,12 +34,15 @@ public enum MSChartEditorInputActions
     ClipboardCut,
     ClipboardPaste,
 
+    DecreaseFret,
     Delete, 
 
     FileLoad,
     FileNew,
     FileSave,
     FileSaveAs,
+
+    IncreaseFret,
 
     MoveStepPositive,
     MoveStepNegative,
@@ -80,6 +83,7 @@ public enum MSChartEditorInputActions
     ToolNoteHold,
     ToolSelectCursor,
     ToolSelectEraser,
+    ToolSelectHandshape,
     ToolSelectNote,
     ToolSelectStarpower,
     ToolSelectBpm,

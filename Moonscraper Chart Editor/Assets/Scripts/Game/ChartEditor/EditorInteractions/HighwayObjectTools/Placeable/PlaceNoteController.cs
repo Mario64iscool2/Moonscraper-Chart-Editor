@@ -21,6 +21,7 @@ public class PlaceNoteController : ObjectlessTool {
 
     [HideInInspector]
     public Note.Flags desiredFlags;
+
     public bool forcedInteractable { get; private set; }
     public bool tapInteractable { get; private set; }
     public bool cymbalInteractable { get; private set; }
@@ -623,6 +624,7 @@ public class PlaceNoteController : ObjectlessTool {
     {
         // Prevent users from forcing notes when they shouldn't be forcable but retain the previous user-set forced property when using the note tool
         bool drumsMode = Globals.drumMode;
+        bool rsmode = Globals.RSMode;
 
         if (!drumsMode)
         {
@@ -635,6 +637,11 @@ public class PlaceNoteController : ObjectlessTool {
         {
             cymbalInteractable = NoteFunctions.AllowedToBeCymbal(note);
             doubleKickInteractable = NoteFunctions.AllowedToBeDoubleKick(note, editor.currentDifficulty);
+        }
+        if (rsmode)
+        {
+            forcedInteractable = !rsmode;
+            
         }
     }
 
@@ -671,4 +678,5 @@ public class PlaceNoteController : ObjectlessTool {
 
         return flags;
     }
+
 }

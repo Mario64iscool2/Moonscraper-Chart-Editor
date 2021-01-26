@@ -38,6 +38,7 @@ public class MeshNoteResources : ScriptableObject {
     public int[] drumModeLaneColorIndicies = new int[5];
     public int[] drumModeLaneColorIndicies4LaneOverride = new int[4];
     public int[] ghlGuitarModeLaneColorIndicies = new int[6];
+    public int[] realGuitarModeLaneColorIndicies = new int[7];
 
     public int starpowerLaneColorIndex;
     public int toolNoteLaneColorIndex;
@@ -57,6 +58,9 @@ public class MeshNoteResources : ScriptableObject {
                 break;
             case (Chart.GameMode.GHLGuitar):
                 paletteMap = ghlGuitarModeLaneColorIndicies;
+                break;
+            case (Chart.GameMode.RealInstrument):
+                paletteMap = realGuitarModeLaneColorIndicies;
                 break;
             default:
                 throw new System.Exception("Unhandled gamemode");

@@ -143,7 +143,13 @@ public class NoteVisuals2DManager : NoteVisualsManager {
             arrayPos += 1;
             if (arrayPos > (laneInfo.laneCount - 1))
                 arrayPos = 0;
-        }        
+        }
+        else if (Globals.RSMode && note.realGuitarFret != Note.RealGuitarFret.No)
+            arrayPos += 1;
+        if (arrayPos == laneInfo.laneCount - 1)
+            arrayPos = 0;
+        if (arrayPos == laneInfo.laneCount)
+            arrayPos = 1;
 
         return arrayPos;
     }

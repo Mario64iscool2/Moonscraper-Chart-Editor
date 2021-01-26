@@ -262,6 +262,31 @@ public class MenuBar : UpdateableService {
         SetInstrumentToggle(toggle, Song.Instrument.GHLiveBass);
     }
 
+    public void SetRealGuitarInstrumentToggle(Toggle toggle)
+    {
+        SetInstrumentToggle(toggle, Song.Instrument.RealGuitar);
+    }
+
+    public void SetRealBassInstrumentToggle(Toggle toggle)
+    {
+        SetInstrumentToggle(toggle, Song.Instrument.RealBass);
+    }
+
+    public void SetRealGuitar22InstrumentToggle(Toggle toggle)
+    {
+        SetInstrumentToggle(toggle, Song.Instrument.RealGuitar22);
+    }
+
+    public void SetRealBass22InstrumentToggle(Toggle toggle)
+    {
+        SetInstrumentToggle(toggle, Song.Instrument.RealBass22);
+    }
+
+    public void SetBonusRealGuitarInstrumentToggle(Toggle toggle)
+    {
+        SetInstrumentToggle(toggle, Song.Instrument.BonusRealGuitar);
+    }
+
     #endregion
 
     #region User Settings Toggles

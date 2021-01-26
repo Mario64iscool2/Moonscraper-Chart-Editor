@@ -77,6 +77,16 @@ namespace MoonscraperChartEditor.Song.IO
         { 7, (int)Note.GHLiveGuitarFret.Open      },
     };
 
+        public static readonly Dictionary<int, int> c_rsNoteNumLookup = new Dictionary<int, int>()
+    {
+        { 0, (int)Note.RealGuitarFret.String1  },
+        { 1, (int)Note.RealGuitarFret.String2  },
+        { 2, (int)Note.RealGuitarFret.String3  },
+        { 3, (int)Note.RealGuitarFret.String4  },
+        { 4, (int)Note.RealGuitarFret.String5  },
+        { 5, (int)Note.RealGuitarFret.String6  },
+    };
+
         public static readonly Dictionary<int, Note.Flags> c_ghlFlagNumLookup = c_guitarFlagNumLookup;
 
         public static readonly Dictionary<string, Song.Difficulty> c_trackNameToTrackDifficultyLookup = new Dictionary<string, Song.Difficulty>()
@@ -85,6 +95,14 @@ namespace MoonscraperChartEditor.Song.IO
         { "Medium", Song.Difficulty.Medium  },
         { "Hard",   Song.Difficulty.Hard    },
         { "Expert", Song.Difficulty.Expert  },
+    };
+
+        public static readonly Dictionary<string, Song.Difficulty> c_RocksmithDifficultyLookup = new Dictionary<string, Song.Difficulty>()
+    {
+        { "L0",   Song.Difficulty.Easy    },
+        { "L9", Song.Difficulty.Medium  },
+        { "L19",   Song.Difficulty.Hard    },
+        { "L29", Song.Difficulty.Expert  },
     };
 
         public static readonly Dictionary<string, Song.Instrument> c_instrumentStrToEnumLookup = new Dictionary<string, Song.Instrument>()
@@ -97,14 +115,23 @@ namespace MoonscraperChartEditor.Song.IO
         { "Keyboard",       Song.Instrument.Keys },
         { "GHLGuitar",      Song.Instrument.GHLiveGuitar },
         { "GHLBass",        Song.Instrument.GHLiveBass },
+        { "RealGuitar",     Song.Instrument.RealGuitar },
+        { "RealBass",     Song.Instrument.RealBass },
+        { "RealGuitar22",   Song.Instrument.RealGuitar22 },
+        { "RealBass22",     Song.Instrument.RealBass22 },
     };
 
         public static readonly Dictionary<Song.Instrument, Song.Instrument> c_instrumentParsingTypeLookup = new Dictionary<Song.Instrument, Song.Instrument>()
     {
         // Other instruments default to loading as a guitar type track
-        { Song.Instrument.Drums,          Song.Instrument.Drums },
-        { Song.Instrument.GHLiveGuitar ,  Song.Instrument.GHLiveGuitar },
-        { Song.Instrument.GHLiveBass ,  Song.Instrument.GHLiveBass },
+        { Song.Instrument.Drums,            Song.Instrument.Drums },
+        { Song.Instrument.GHLiveGuitar ,    Song.Instrument.GHLiveGuitar },
+        { Song.Instrument.GHLiveBass ,      Song.Instrument.GHLiveBass },
+        { Song.Instrument.RealGuitar,       Song.Instrument.RealGuitar },
+        { Song.Instrument.RealBass,         Song.Instrument.RealBass },
+        { Song.Instrument.RealGuitar22,     Song.Instrument.RealGuitar22 },
+        { Song.Instrument.RealBass22,       Song.Instrument.RealBass22 },
+        { Song.Instrument.BonusRealGuitar,  Song.Instrument.BonusRealGuitar }
     };
 
         public static class MetaData

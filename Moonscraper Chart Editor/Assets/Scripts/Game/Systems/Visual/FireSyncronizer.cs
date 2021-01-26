@@ -59,6 +59,18 @@ public class FireSyncronizer : MonoBehaviour {
                         { (int)Note.GHLiveGuitarFret.Open, Color.magenta },
                     }
                 },
+                {
+                    Chart.GameMode.RealInstrument, new Dictionary<int, Color>()
+                    {
+                        { (int)Note.RealGuitarFret.String1, Color.red },
+                        { (int)Note.RealGuitarFret.String2, Color.yellow },
+                        { (int)Note.RealGuitarFret.String3, Color.blue },
+                        { (int)Note.RealGuitarFret.String4, orangeColor },
+                        { (int)Note.RealGuitarFret.String5, Color.green },
+                        { (int)Note.RealGuitarFret.String6, Color.magenta },
+                        { (int)Note.RealGuitarFret.No, Color.magenta },
+                    }
+                },
             };
 
             gameModeColourDictLaneOverride = new Dictionary<Chart.GameMode, Dictionary<int, Dictionary<int, Color>>>()

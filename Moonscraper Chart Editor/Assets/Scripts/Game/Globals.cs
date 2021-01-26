@@ -54,6 +54,13 @@ public class Globals : MonoBehaviour {
             return ChartEditor.Instance.currentChart.gameMode == Chart.GameMode.GHLGuitar;
         }
     }
+    public static bool RSMode
+    {
+        get
+        {
+            return ChartEditor.Instance.currentChart.gameMode == Chart.GameMode.RealInstrument;
+        }
+    }
 
     public static ViewMode viewMode { get; set; }
 

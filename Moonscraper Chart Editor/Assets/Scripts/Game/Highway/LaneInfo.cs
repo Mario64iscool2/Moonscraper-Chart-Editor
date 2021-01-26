@@ -14,6 +14,7 @@ public class LaneInfo : MonoBehaviour {
     public int[] drumPadColourMap;
     public int[] ghlGuitarFretColourMap;
     public int[] drumPadColourMap4LaneOverride;
+    public int[] realInstrumentColourMap;
 
     Dictionary<Chart.GameMode, int[]> standardGamemodePaletteMap;
     Dictionary<Chart.GameMode, Dictionary<int, int[]>> laneCountPaletteMapOverrides;
@@ -24,6 +25,7 @@ public class LaneInfo : MonoBehaviour {
         { Chart.GameMode.Guitar, 5 },
         { Chart.GameMode.Drums, 5 },
         { Chart.GameMode.GHLGuitar, 6 },
+        { Chart.GameMode.RealInstrument, 6 }
     };
 
     public const float positionRangeMin = -2, positionRangeMax = 2;
@@ -36,6 +38,7 @@ public class LaneInfo : MonoBehaviour {
             { Chart.GameMode.Guitar, guitarFretColourMap },
             { Chart.GameMode.Drums, drumPadColourMap },
             { Chart.GameMode.GHLGuitar, ghlGuitarFretColourMap },
+            { Chart.GameMode.RealInstrument, realInstrumentColourMap }
         };
 
         laneCountPaletteMapOverrides = new Dictionary<Chart.GameMode, Dictionary<int, int[]>>()

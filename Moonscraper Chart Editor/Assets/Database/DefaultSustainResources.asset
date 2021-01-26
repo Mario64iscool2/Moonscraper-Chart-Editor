@@ -27,3 +27,12 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 3707e05e0665a1f47a99acbd696aab58, type: 2}
   - {fileID: 2100000, guid: 3707e05e0665a1f47a99acbd696aab58, type: 2}
   - {fileID: 2100000, guid: 240fec0bf1d85f448a590b35086b2421, type: 2}
+  rsSustainColours:
+  - {fileID: 2100000, guid: 00d7fda607705d844b5dff586f4d884a, type: 2}
+  - {fileID: 2100000, guid: 2e8af905afc3c604a93a7a3aa9c50417, type: 2}
+  - {fileID: 2100000, guid: 2711bad5437e59f499789c69484f9328, type: 2}
+  - {fileID: 2100000, guid: 16e2054206ce09d4aa5c7e736f343ef6, type: 2}
+  - {fileID: 2100000, guid: c32fb1850e31e6e40bd8c7d947cc8f82, type: 2}
+  - {fileID: 2100000, guid: 1025affe3a400784fb8510f2a966aeb8, type: 2}
+  - {fileID: 2100000, guid: 257d8272b5abc04428d71b1188d475d3, type: 2}
+  - {fileID: 2100000, guid: 5ef71e8afdcc8c54db1313400f41b29b, type: 2}

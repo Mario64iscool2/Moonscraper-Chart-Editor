@@ -49,6 +49,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 8c7352ab646f1fb4ab444df0c6f62ceb, type: 2}
   - {fileID: 2100000, guid: ebc0e70d8eda7bb448116190d74828d0, type: 2}
   - {fileID: 2100000, guid: 89e7dbb3a94ebb24a9980526e4365c0d, type: 2}
+  - {fileID: 2100000, guid: 61d340ea5d4741449ad829cd421dcb0d, type: 2}
   tapColorPalette:
   - {fileID: 2100000, guid: 497bc41786d6ca04e8548bf1e9912d5b, type: 2}
   - {fileID: 2100000, guid: 17c01fab769334b40b73d2b19dc006a2, type: 2}
@@ -73,5 +74,6 @@ MonoBehaviour:
   drumModeLaneColorIndicies: 0100000002000000030000000400000000000000
   drumModeLaneColorIndicies4LaneOverride: 01000000020000000300000000000000
   ghlGuitarModeLaneColorIndicies: 060000000600000006000000070000000700000007000000
+  realGuitarModeLaneColorIndicies: 01000000020000000300000004000000000000000900000009000000
   starpowerLaneColorIndex: 5
   toolNoteLaneColorIndex: 8

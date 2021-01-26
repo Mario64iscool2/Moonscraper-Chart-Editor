@@ -44,6 +44,19 @@ namespace MoonscraperChartEditor.Song
             Open
         }
 
+        public enum RealGuitarFret
+        {
+            // Assign to the sprite array position
+            String1 = 0,
+            String2 = 1,
+            String3 = 2,
+            String4 = 3,
+            String5 = 4,
+            String6 = 5,
+            No = 6
+            
+        }
+
         public enum NoteType
         {
             Natural,
@@ -51,13 +64,16 @@ namespace MoonscraperChartEditor.Song
             Hopo,
             Tap,
             Cymbal,
+            Mute,
+
         }
 
         public enum SpecialType
         {
             None,
             StarPower,
-            Battle
+            Battle,
+            Arpeggio
         }
 
         [Flags]
@@ -75,6 +91,24 @@ namespace MoonscraperChartEditor.Song
             // Generic flag that mainly represents mechanics from Guitar Hero's Expert+ filtered drum notes such as Double Kick. This may apply to any difficulty now though.
             InstrumentPlus = 1 << 7,
             DoubleKick = InstrumentPlus,
+
+            RS_PalmMute = 1 << 11,
+            RS_FretMute = 1 << 12,
+            RS_HammerOn = 1 << 13,
+            RS_PullOff = 1 << 14,
+            RS_Harmonic = 1 << 15,
+            RS_PinchHarmonic = 1 << 16,
+            RS_Slide = 1 << 17,
+            RS_UnpitchedSlide = 1 << 18,
+            RS_Bend = 1 << 19,
+            RS_Tap = 1 << 20,
+            RS_Slap = 1 << 21,
+            RS_Pop = 1 << 22,
+            RS_Ignore = 1 << 23,
+            RS_Tremolo = 1 << 24,
+            RS_Arpeggio = 1 << 25,
+            RS_Accent = 1 << 26,
+
         }
 
         public const Flags PER_NOTE_FLAGS = Flags.ProDrums_Cymbal | Flags.InstrumentPlus;
@@ -85,6 +119,7 @@ namespace MoonscraperChartEditor.Song
 
         public uint length;
         public int rawNote;
+        public int rsfret;
         public GuitarFret guitarFret
         {
             get
@@ -110,6 +145,18 @@ namespace MoonscraperChartEditor.Song
             get
             {
                 return (GHLiveGuitarFret)rawNote;
+            }
+            set
+            {
+                rawNote = (int)value;
+            }
+        }
+
+        public RealGuitarFret realGuitarFret
+        {
+            get
+            {
+                return (RealGuitarFret)rawNote;
             }
             set
             {
@@ -160,6 +207,34 @@ namespace MoonscraperChartEditor.Song
             length = _sustain;
             flags = _flags;
             guitarFret = _fret_type;
+
+            previous = null;
+            next = null;
+        }
+
+
+        public Note(uint _position,
+                    RealGuitarFret _string, int fretnum,
+                    uint _sustain = 0,
+                    Flags _flags = Flags.None) : base(_position)
+        {
+            length = _sustain;
+            flags = _flags;
+            realGuitarFret = _string;
+            rsfret = fretnum;
+
+            previous = null;
+            next = null;
+        }
+        public Note(uint _position,
+                    int _string, int fretnum,
+                    uint _sustain = 0,
+                    Flags _flags = Flags.None) : base(_position)
+        {
+            length = _sustain;
+            flags = _flags;
+            rawNote = _string;
+            rsfret = fretnum;
 
             previous = null;
             next = null;
@@ -357,6 +432,11 @@ namespace MoonscraperChartEditor.Song
             }
         }
 
+        public int GetRSFret()
+        {
+            return rsfret;
+        }
+
         public int GetMaskWithRequiredFlags(Flags flags)
         {
             int mask = 0;
@@ -470,6 +550,8 @@ namespace MoonscraperChartEditor.Song
         {
             if (gameMode == Chart.GameMode.GHLGuitar)
                 return ghliveGuitarFret == GHLiveGuitarFret.Open;
+            else if (gameMode == Chart.GameMode.RealInstrument)
+                return realGuitarFret == RealGuitarFret.No;
             else
                 return guitarFret == GuitarFret.Open;
         }
@@ -483,14 +565,17 @@ namespace MoonscraperChartEditor.Song
                 case Chart.GameMode.Guitar:
                 case Chart.GameMode.GHLGuitar:
                     {
-                        bannedFlags = Flags.ProDrums_Cymbal;
+                        bannedFlags = Flags.ProDrums_Cymbal | Flags.RS_PalmMute | Flags.RS_FretMute | Flags.RS_HammerOn | Flags.RS_PullOff | Flags.RS_Harmonic | Flags.RS_PinchHarmonic | Flags.RS_Slide | Flags.RS_UnpitchedSlide | Flags.RS_Bend | Flags.RS_Tap | Flags.RS_Slap | Flags.RS_Pop | Flags.RS_Ignore | Flags.RS_Tremolo | Flags.RS_Arpeggio;
                         break;
                     }
                 case Chart.GameMode.Drums:
                     {
-                        bannedFlags = Flags.Forced | Flags.Tap;
+                        bannedFlags = Flags.Forced | Flags.Tap | Flags.RS_PalmMute | Flags.RS_FretMute | Flags.RS_HammerOn | Flags.RS_PullOff | Flags.RS_Harmonic | Flags.RS_PinchHarmonic | Flags.RS_Slide | Flags.RS_UnpitchedSlide | Flags.RS_Bend | Flags.RS_Tap | Flags.RS_Slap | Flags.RS_Pop | Flags.RS_Ignore | Flags.RS_Tremolo | Flags.RS_Arpeggio;
                         break;
                     }
+                case Chart.GameMode.RealInstrument:
+                    bannedFlags = Flags.Forced | Flags.DoubleKick | Flags.InstrumentPlus | Flags.Tap;
+                    break;
                 default:
                     {
                         break;
@@ -499,5 +584,6 @@ namespace MoonscraperChartEditor.Song
 
             return bannedFlags;
         }
+
     }
 }

@@ -101,8 +101,8 @@ public class NoteVisualsManager : MonoBehaviour {
 
         bool isDoubleKick = Globals.drumMode && note.IsOpenNote() && ((note.flags & Note.Flags.DoubleKick) != 0);
         bool culledFromLanes = note.ShouldBeCulledFromLanes(ChartEditor.Instance.laneInfo);
-
-        bool active = isDoubleKick | culledFromLanes;
+        bool isRSMode = ChartEditor.Instance.currentGameMode == Chart.GameMode.RealInstrument;
+        bool active = isDoubleKick | culledFromLanes | isRSMode;
 
         Vector3 position = Vector3.zero;
         position.z = -0.3f;  // Places the text above the note due to rotation
@@ -115,6 +115,11 @@ public class NoteVisualsManager : MonoBehaviour {
         else if (culledFromLanes)
         {
             text.text = "Lane Merged";
+        }
+        else if (isRSMode)
+        {
+            position.x = -0.5f;
+            text.text = note.GetRSFret().ToString();
         }
 
         text.transform.localPosition = position;

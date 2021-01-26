@@ -38,9 +38,12 @@ public static class NoteFunctions {
 
     public static void ApplyFlagsToChord(this Note note)
     {
-        foreach (Note chordNote in note.chord)
+        if (!Globals.RSMode)
         {
-            chordNote.flags = CopyChordFlags(chordNote.flags, note.flags);
+            foreach (Note chordNote in note.chord)
+            {
+                chordNote.flags = CopyChordFlags(chordNote.flags, note.flags);
+            }
         }
     }
 
@@ -50,7 +53,7 @@ public static class NoteFunctions {
 
         Note previous = startNote.previous;
 
-        int allVisited = startNote.gameMode == Chart.GameMode.GHLGuitar ? 63 : 31; // 0011 1111 for ghlive, 0001 1111 for standard
+        int allVisited = startNote.gameMode == (Chart.GameMode.GHLGuitar | Chart.GameMode.RealInstrument) ? 63 : 31; // 0011 1111 for ghlive, 0001 1111 for standard
         int noteTypeVisited = 0;
 
         while (previous != null && noteTypeVisited < allVisited)
@@ -184,6 +187,10 @@ public static class NoteFunctions {
 
     public static bool ShouldBeCulledFromLanes(this Note note, LaneInfo laneInfo)
     {
+        if (Globals.RSMode)
+        {
+            return false;
+        }
         return !note.IsOpenNote() && ((1 << note.rawNote) & laneInfo.laneMask) == 0;
     }
 
@@ -232,6 +239,11 @@ public static class NoteFunctions {
     public static bool AllowedToBeDoubleKickIgnoreDifficulty(Note note)
     {
         return note.IsOpenNote();
+    }
+
+    public static bool AllowedToBeOpenNote(Note note)
+    {
+        return !(Globals.RSMode);
     }
 
     public static Note.Flags GetFlagsToSetType(this Note note, Note.NoteType type)

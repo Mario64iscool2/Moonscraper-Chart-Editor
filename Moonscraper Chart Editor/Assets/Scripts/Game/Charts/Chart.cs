@@ -26,6 +26,10 @@ namespace MoonscraperChartEditor.Song
         /// </summary>
         public SongObjectCache<Starpower> starPower { get; private set; }
         /// <summary>
+        /// Read only list of handShapes.
+        /// </summary>
+        public SongObjectCache<Handshape> handShape { get; private set; }
+        /// <summary>
         /// Read only list of local events.
         /// </summary>
         public SongObjectCache<ChartEvent> events { get; private set; }
@@ -62,6 +66,7 @@ namespace MoonscraperChartEditor.Song
 
             notes = new SongObjectCache<Note>();// new Note[0];
             starPower = new SongObjectCache<Starpower>();// new Starpower[0];
+            handShape = new SongObjectCache<Handshape>();// new Handshape[0];
             events = new SongObjectCache<ChartEvent>(); // new ChartEvent[0];
 
             _note_count = 0;
@@ -94,10 +99,12 @@ namespace MoonscraperChartEditor.Song
         {
             Song.UpdateCacheList(notes, _chartObjects);
             Song.UpdateCacheList(starPower, _chartObjects);
+            Song.UpdateCacheList(handShape, _chartObjects);
             Song.UpdateCacheList(events, _chartObjects);
 
             //notes = _chartObjects.OfType<Note>().ToArray();
             //starPower = _chartObjects.OfType<Starpower>().ToArray();
+            //handShape = _chartObjects.OfType<Handshape>().ToArray();
             //events = _chartObjects.OfType<ChartEvent>().ToArray();
 
             _note_count = GetNoteCount();
@@ -211,6 +218,7 @@ namespace MoonscraperChartEditor.Song
             Guitar,
             Drums,
             GHLGuitar,
+            RealInstrument,
 
             Unrecognised,
         }

@@ -27,6 +27,8 @@ public class ToolPanelController : MonoBehaviour {
     Button sectionSelect;
     [SerializeField]
     Button eventSelect;
+    [SerializeField]
+    Button handShapeSelect;
 
     [SerializeField]
     Sprite globalEventSprite;
@@ -45,6 +47,7 @@ public class ToolPanelController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+        bool rsMode = Globals.RSMode;
         if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToggleViewMode) && (editor.currentState == ChartEditor.State.Editor || editor.currentState == ChartEditor.State.Playing))
         {
             viewModeToggle.isOn = !viewModeToggle.isOn;
@@ -52,6 +55,9 @@ public class ToolPanelController : MonoBehaviour {
 
         keysModePanel.gameObject.SetActive(editor.toolManager.currentToolId == EditorObjectToolManager.ToolID.Note && Globals.gameSettings.keysModeEnabled);
         mouseModePanel.gameObject.SetActive(editor.toolManager.currentToolId == EditorObjectToolManager.ToolID.Note && !Globals.gameSettings.keysModeEnabled);
+
+            starpowerSelect.gameObject.SetActive(!Globals.RSMode);
+            handShapeSelect.gameObject.SetActive(Globals.RSMode);
 
         Shortcuts();
     }
@@ -71,8 +77,15 @@ public class ToolPanelController : MonoBehaviour {
             noteSelect.onClick.Invoke();
 
         else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectStarpower))
-            starpowerSelect.onClick.Invoke();
-
+            if (Globals.RSMode)
+            {
+                handShapeSelect.onClick.Invoke();
+            }
+            else
+            {
+                starpowerSelect.onClick.Invoke();
+            }
+                
         else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectBpm))
             bpmSelect.onClick.Invoke();
 
@@ -84,6 +97,8 @@ public class ToolPanelController : MonoBehaviour {
 
         else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectEvent))
             eventSelect.onClick.Invoke();
+        else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectHandshape))
+            handShapeSelect.onClick.Invoke();
     }
 
     public void ToggleSongViewMode(bool globalView)

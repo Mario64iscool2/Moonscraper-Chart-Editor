@@ -16,6 +16,8 @@ public class GroupSelectPanelController : MonoBehaviour
     [SerializeField]
     Dropdown ghlFretSelectDropdown;
     [SerializeField]
+    Dropdown rsStringSelectDropdown;
+    [SerializeField]
     Dropdown drums4LaneSelectDropdown;
     [SerializeField]
     Button setNoteNatural;
@@ -45,6 +47,7 @@ public class GroupSelectPanelController : MonoBehaviour
             laneSelectForGamemodeLookup[Chart.GameMode.Guitar] = fretSelectDropdown;
             laneSelectForGamemodeLookup[Chart.GameMode.Drums] = drumsFretSelectDropdown;
             laneSelectForGamemodeLookup[Chart.GameMode.GHLGuitar] = ghlFretSelectDropdown;
+            laneSelectForGamemodeLookup[Chart.GameMode.RealInstrument] = rsStringSelectDropdown;
 
             var drumsOverrideLaneSelectDict = new Dictionary<int, Dropdown>();
             drumsOverrideLaneSelectDict[4] = drums4LaneSelectDropdown;
@@ -149,6 +152,11 @@ public class GroupSelectPanelController : MonoBehaviour
             case Chart.GameMode.GHLGuitar:
                 {
                     rawNoteValue = (int)Note.GHLiveGuitarFret.Open;
+                    break;
+                }
+            case Chart.GameMode.RealInstrument:
+                {
+                    rawNoteValue = (int)Note.RealGuitarFret.No;
                     break;
                 }
             default:

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2016-2020 Alexander Ong
 // See LICENSE in project root for license information.
 
+using MoonscraperChartEditor.Song;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +12,7 @@ public class GameSettings
     const string SECTION_NAME_SETTINGS = "Settings";
     const string SECTION_NAME_AUDIO = "Audio Volume";
     const string SECTION_NAME_GRAPHICS = "Graphics";
+    const string SECTION_NAME_TUNINGS = "Tunings";
 
     [System.Flags]
     public enum ClapToggle
@@ -55,7 +57,58 @@ public class GameSettings
     public int customBgSwapTime;
     public int targetFramerate = -1;
     public int drumsLaneCount = 5;
+    public int realGLaneCount = 6;
+    public int realBLaneCount = 4;
+    public int realG22LaneCount = 6;
+    public int realB22LaneCount = 4;
+    public int bonusRealLaneCount = 6;
+    public int realGTuning1 = 0;
+    public int realGTuning2 = 0;
+    public int realGTuning3 = 0;
+    public int realGTuning4 = 0;
+    public int realGTuning5 = 0;
+    public int realGTuning6 = 0;
+    public int realBTuning1 = 0;
+    public int realBTuning2 = 0;
+    public int realBTuning3 = 0;
+    public int realBTuning4 = 0;
+    public int realBTuning5 = 0;
+    public int realBTuning6 = 0;
+    public int realG22Tuning1 = 0;
+    public int realG22Tuning2 = 0;
+    public int realG22Tuning3 = 0;
+    public int realG22Tuning4 = 0;
+    public int realG22Tuning5 = 0;
+    public int realG22Tuning6 = 0;
+    public int realB22Tuning1 = 0;
+    public int realB22Tuning2 = 0;
+    public int realB22Tuning3 = 0;
+    public int realB22Tuning4 = 0;
+    public int realB22Tuning5 = 0;
+    public int realB22Tuning6 = 0;
+    public int bonusRealTuning1 = 0;
+    public int bonusRealTuning2 = 0;
+    public int bonusRealTuning3 = 0;
+    public int bonusRealTuning4 = 0;
+    public int bonusRealTuning5 = 0;
+    public int bonusRealTuning6 = 0;
+
+    public ArrangementTypeOptions realGArr = ArrangementTypeOptions.Lead;
+    public ArrangementTypeOptions realBArr = ArrangementTypeOptions.Bass;
+    public ArrangementTypeOptions realG22Arr = ArrangementTypeOptions.Rhythm;
+    public ArrangementTypeOptions realB22Arr = ArrangementTypeOptions.Undefined;
+    public ArrangementTypeOptions realBonusArr = ArrangementTypeOptions.Undefined;
+
     public DrumModeOptions drumsModeOptions = DrumModeOptions.Standard;
+    public enum ArrangementTypeOptions
+    {
+        // Keep this in the same order as the UI
+        Lead = 0,
+        Bass = 1,
+        Rhythm = 2,
+        Combo = 3,
+        Undefined = 4
+    }
 
     public float hyperspeed = 5.0f;
     public float highwayLength = 0;
@@ -75,6 +128,27 @@ public class GameSettings
                 _sfxVolume = value;
         }
     }
+
+    public ArrangementTypeOptions GetArrangementType(Song.Instrument inst)
+    {
+        switch(inst)
+        {
+            case Song.Instrument.RealGuitar:
+                return realGArr;
+            case Song.Instrument.RealBass:
+                return realBArr;
+            case Song.Instrument.RealGuitar22:
+                return realG22Arr;
+            case Song.Instrument.RealBass22:
+                return realB22Arr;
+            case Song.Instrument.BonusRealGuitar:
+                return realBonusArr;
+            default:
+                return ArrangementTypeOptions.Undefined;
+        }
+        
+    }
+
     public float vol_master, vol_song, vol_guitar, vol_bass, vol_rhythm, vol_keys, vol_drums, vol_drums2, vol_drums3, vol_drums4, vol_vocals, audio_pan, vol_crowd;
 
     public Step snappingStep = new Step(16);
@@ -143,6 +217,47 @@ public class GameSettings
             slowdownPitchCorrectionEnabled = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Slowdown Pitch Correction Enabled", false);
             customBgSwapTime = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Custom Background Swap Time", 30);
             drumsLaneCount = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Drums Lane Count", 5);
+            realGLaneCount = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Guitar Lane Count", 6);
+            realBLaneCount = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Bass Lane Count", 4);
+            realG22LaneCount = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Guitar 22 Lane Count", 6);
+            realB22LaneCount = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Bass 22 Lane Count", 4);
+            bonusRealLaneCount = iniparse.ReadValue(SECTION_NAME_SETTINGS, "Bonus Real Lane Count", 6);
+            realGTuning1 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar String 1 Tuning", 0);
+            realGTuning2 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar String 2 Tuning", 0);
+            realGTuning3 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar String 3 Tuning", 0);
+            realGTuning4 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar String 4 Tuning", 0);
+            realGTuning5 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar String 5 Tuning", 0);
+            realGTuning6 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar String 6 Tuning", 0);
+            realBTuning1 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass String 1 Tuning", 0);
+            realBTuning2 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass String 2 Tuning", 0);
+            realBTuning3 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass String 3 Tuning", 0);
+            realBTuning4 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass String 4 Tuning", 0);
+            realBTuning5 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass String 5 Tuning", 0);
+            realBTuning6 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass String 6 Tuning", 0);
+            realG22Tuning1 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 1 Tuning", 0);
+            realG22Tuning2 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 2 Tuning", 0);
+            realG22Tuning3 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 3 Tuning", 0);
+            realG22Tuning4 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 4 Tuning", 0);
+            realG22Tuning5 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 5 Tuning", 0);
+            realG22Tuning6 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 6 Tuning", 0);
+            realB22Tuning1 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 1 Tuning", 0);
+            realB22Tuning2 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 2 Tuning", 0);
+            realB22Tuning3 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 3 Tuning", 0);
+            realB22Tuning4 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 4 Tuning", 0);
+            realB22Tuning5 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 5 Tuning", 0);
+            realB22Tuning6 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 6 Tuning", 0);
+            bonusRealTuning1 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Bonus Real Guitar String 1 Tuning", 0);
+            bonusRealTuning2 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Bonus Real Guitar String 2 Tuning", 0);
+            bonusRealTuning3 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Bonus Real Guitar String 3 Tuning", 0);
+            bonusRealTuning4 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Bonus Real Guitar String 4 Tuning", 0);
+            bonusRealTuning5 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Bonus Real Guitar String 5 Tuning", 0);
+            bonusRealTuning6 = iniparse.ReadValue(SECTION_NAME_TUNINGS, "Bonus Real Guitar String 6 Tuning", 0);
+            realGArr = (ArrangementTypeOptions)iniparse.ReadValue(SECTION_NAME_SETTINGS, "Real Guitar Arrangement", (int)ArrangementTypeOptions.Lead);
+            realBArr = (ArrangementTypeOptions)iniparse.ReadValue(SECTION_NAME_SETTINGS, "Real Bass Arrangement", (int)ArrangementTypeOptions.Bass);
+            realG22Arr = (ArrangementTypeOptions)iniparse.ReadValue(SECTION_NAME_SETTINGS, "Real Guitar 22 Arrangement", (int)ArrangementTypeOptions.Rhythm);
+            realB22Arr = (ArrangementTypeOptions)iniparse.ReadValue(SECTION_NAME_SETTINGS, "Real Bass 22 Arrangement", (int)ArrangementTypeOptions.Bass);
+            realBonusArr = (ArrangementTypeOptions)iniparse.ReadValue(SECTION_NAME_SETTINGS, "Real Bonus Arrangement", (int)ArrangementTypeOptions.Undefined);
+
             drumsModeOptions = (DrumModeOptions)iniparse.ReadValue(SECTION_NAME_SETTINGS, "Drums Mode", (int)DrumModeOptions.Standard);
             if (!System.Enum.IsDefined(typeof(DrumModeOptions), drumsModeOptions))
             {
@@ -236,6 +351,54 @@ public class GameSettings
             iniparse.WriteValue(SECTION_NAME_SETTINGS, "Slowdown Pitch Correction Enabled", slowdownPitchCorrectionEnabled);
             iniparse.WriteValue(SECTION_NAME_SETTINGS, "Custom Background Swap Time", customBgSwapTime);
             iniparse.WriteValue(SECTION_NAME_SETTINGS, "Drums Lane Count", drumsLaneCount);
+
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Guitar Lane Count", realGLaneCount);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Bass Lane Count", realBLaneCount);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Guitar 22 Lane Count", realG22LaneCount);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Bass 22 Lane Count", realB22LaneCount);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Bonus Real Lane Count", bonusRealLaneCount);
+
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar String 1 Tuning", realGTuning1);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar String 2 Tuning", realGTuning2);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar String 3 Tuning", realGTuning3);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar String 4 Tuning", realGTuning4);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar String 5 Tuning", realGTuning5);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar String 6 Tuning", realGTuning6);
+
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass String 1 Tuning", realBTuning1);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass String 2 Tuning", realBTuning2);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass String 3 Tuning", realBTuning3);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass String 4 Tuning", realBTuning4);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass String 5 Tuning", realBTuning5);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass String 6 Tuning", realBTuning6);
+
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 1 Tuning", realG22Tuning1);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 2 Tuning", realG22Tuning2);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 3 Tuning", realG22Tuning3);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 4 Tuning", realG22Tuning4);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 5 Tuning", realG22Tuning5);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Guitar 22 String 6 Tuning", realG22Tuning6);
+
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 1 Tuning", realB22Tuning1);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 2 Tuning", realB22Tuning2);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 3 Tuning", realB22Tuning3);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 4 Tuning", realB22Tuning4);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 5 Tuning", realB22Tuning5);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Real Bass 22 String 6 Tuning", realB22Tuning6);
+
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Bonus Real String 1 Tuning", bonusRealTuning1);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Bonus Real String 2 Tuning", bonusRealTuning2);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Bonus Real String 3 Tuning", bonusRealTuning3);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Bonus Real String 4 Tuning", bonusRealTuning4);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Bonus Real String 5 Tuning", bonusRealTuning5);
+            iniparse.WriteValue(SECTION_NAME_TUNINGS, "Bonus Real String 6 Tuning", bonusRealTuning6);
+
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Real Guitar Arrangement", (int)realGArr);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Real Bass Arrangement", (int)realBArr);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Real Guitar 22 Arrangement", (int)realG22Arr);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Real Bass 22 Arrangement", (int)realB22Arr);
+            iniparse.WriteValue(SECTION_NAME_SETTINGS, "Real Bonus Arrangement", (int)realBonusArr);
+
             iniparse.WriteValue(SECTION_NAME_SETTINGS, "Drums Mode", (int)drumsModeOptions);
             iniparse.WriteValue(SECTION_NAME_SETTINGS, "Song Validator Modes", (int)songValidatorModes);
             iniparse.WriteValue(SECTION_NAME_SETTINGS, "Auto Validate Song On Save", autoValidateSongOnSave);

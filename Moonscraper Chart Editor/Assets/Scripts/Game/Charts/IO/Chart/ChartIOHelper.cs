@@ -10,6 +10,14 @@ namespace MoonscraperChartEditor.Song.IO
 {
     public static class ChartIOHelper
     {
+        public enum FileSubType
+        {
+            Default,
+
+            // Stores space characters found in ChartEvent objects as Japanese full-width spaces. Need to convert this back when loading.
+            MoonscraperPropriety,
+        }
+
         public const string
             c_dataBlockSong = "[Song]"
             , c_dataBlockSyncTrack = "[SyncTrack]"
@@ -18,6 +26,8 @@ namespace MoonscraperChartEditor.Song.IO
 
         public const int c_proDrumsOffset = 64;
         public const int c_instrumentPlusOffset = 32;
+        public const int c_starpowerId = 2;
+        public const int c_starpowerDrumFillId = 64;
 
         public static readonly Dictionary<int, int> c_guitarNoteNumLookup = new Dictionary<int, int>()
     {

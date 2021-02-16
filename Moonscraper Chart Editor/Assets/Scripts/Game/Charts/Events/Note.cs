@@ -109,9 +109,12 @@ namespace MoonscraperChartEditor.Song
             RS_Arpeggio = 1 << 25,
             RS_Accent = 1 << 26,
 
+            // FoF/PS Pro Drums
+            ProDrums_Accent = 1 << 12,
+            ProDrums_Ghost = 1 << 13,
         }
 
-        public const Flags PER_NOTE_FLAGS = Flags.ProDrums_Cymbal | Flags.InstrumentPlus;
+        public const Flags PER_NOTE_FLAGS = Flags.ProDrums_Cymbal | Flags.InstrumentPlus | Flags.ProDrums_Accent | Flags.ProDrums_Ghost;
 
         private readonly ID _classID = ID.Note;
 

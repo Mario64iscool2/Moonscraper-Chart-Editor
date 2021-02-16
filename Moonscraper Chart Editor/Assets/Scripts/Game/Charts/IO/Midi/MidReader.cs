@@ -81,6 +81,12 @@ namespace MoonscraperChartEditor.Song.IO
         { MidIOHelper.DOUBLE_KICK_NOTE, (in NoteProcessParams noteProcessParams) => {
             ProcessNoteOnEventAsNote(noteProcessParams, Song.Difficulty.Expert, (int)Note.DrumPad.Kick, Note.Flags.InstrumentPlus);
         }},
+
+        { MidIOHelper.STARPOWER_DRUM_FILL_0, ProcessNoteOnEventAsDrumFill },
+        { MidIOHelper.STARPOWER_DRUM_FILL_1, ProcessNoteOnEventAsDrumFill },
+        { MidIOHelper.STARPOWER_DRUM_FILL_2, ProcessNoteOnEventAsDrumFill },
+        { MidIOHelper.STARPOWER_DRUM_FILL_3, ProcessNoteOnEventAsDrumFill },
+        { MidIOHelper.STARPOWER_DRUM_FILL_4, ProcessNoteOnEventAsDrumFill },
     };
 
         static MidReader()
@@ -352,13 +358,22 @@ namespace MoonscraperChartEditor.Song.IO
                     }
 
                     var tick = (uint)text.AbsoluteTime;
-                    var eventName = text.Text.Trim(new char[] { '[', ']' });
+                    var eventName = text.Text;
+
                     ChartEvent chartEvent = new ChartEvent(tick, eventName);
 
                     if (instrument == Song.Instrument.Unrecognised)
+                    {
                         unrecognised.Add(chartEvent);
+                    }
                     else
-                        song.GetChart(instrument, Song.Difficulty.Expert).Add(chartEvent);
+                    {
+                        // Copy text event to all difficulties so that .chart format can store these properly. Midi writer will strip duplicate events just fine anyway. 
+                        foreach (Song.Difficulty difficulty in EnumX<Song.Difficulty>.Values)
+                        {
+                            song.GetChart(instrument, difficulty).Add(chartEvent);
+                        }
+                    }
                 }
 
                 var note = track[i] as NoteOnEvent;
@@ -766,8 +781,29 @@ namespace MoonscraperChartEditor.Song.IO
             NoteOnEvent noteEvent = noteProcessParams.noteEvent;
             var tick = (uint)noteEvent.AbsoluteTime;
             var sus = CalculateSustainLength(noteProcessParams.song, noteEvent);
+            var velocity = noteEvent.Velocity;
 
-            Note newNote = new Note(tick, ingameFret, sus, defaultFlags);
+            Note.Flags flags = defaultFlags;
+
+            if (noteProcessParams.instrument == Song.Instrument.Drums)
+            {
+                switch (velocity)
+                {
+                    case MidIOHelper.VELOCITY_ACCENT:
+                        {
+                            flags |= Note.Flags.ProDrums_Accent;
+                            break;
+                        }
+                    case MidIOHelper.VELOCITY_GHOST:
+                        {
+                            flags |= Note.Flags.ProDrums_Ghost;
+                            break;
+                        }
+                    default: break;
+                }
+            }
+
+            Note newNote = new Note(tick, ingameFret, sus, flags);
             chart.Add(newNote, false);
         }
 
@@ -783,6 +819,21 @@ namespace MoonscraperChartEditor.Song.IO
             foreach (Song.Difficulty diff in EnumX<Song.Difficulty>.Values)
             {
                 song.GetChart(instrument, diff).Add(new Starpower(tick, sus), false);
+            }
+        }
+
+        static void ProcessNoteOnEventAsDrumFill(in NoteProcessParams noteProcessParams)
+        {
+            var noteEvent = noteProcessParams.noteEvent;
+            var song = noteProcessParams.song;
+            var instrument = noteProcessParams.instrument;
+
+            var tick = (uint)noteEvent.AbsoluteTime;
+            var sus = CalculateSustainLength(song, noteEvent);
+
+            foreach (Song.Difficulty diff in EnumX<Song.Difficulty>.Values)
+            {
+                song.GetChart(instrument, diff).Add(new Starpower(tick, sus, Starpower.Flags.ProDrums_Activation), false);
             }
         }
 

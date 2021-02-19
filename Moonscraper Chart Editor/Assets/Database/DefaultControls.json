@@ -1177,6 +1177,30 @@
             }
         },
         {
+            "action": "ToolSelectHandshape",
+            "input": {
+                "kbMaps": [
+                    {
+                        "modifiers": 0,
+                        "keys": [
+                            104
+                        ]
+                    },
+                    {
+                        "modifiers": 0,
+                        "keys": []
+                    }
+                ],
+                "gpButtonMaps": [
+                    {
+                        "buttons": [],
+                        "axes": []
+                    }
+                ],
+                "jsMaps": []
+            }
+        },
+        {
             "action": "ToolSelectBpm",
             "input": {
                 "kbMaps": [

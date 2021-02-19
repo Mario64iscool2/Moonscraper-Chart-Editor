@@ -108,13 +108,17 @@ namespace MoonscraperChartEditor.Song
             RS_Tremolo = 1 << 24,
             RS_Arpeggio = 1 << 25,
             RS_Accent = 1 << 26,
+            RS_LinkNext = 1 << 27,
 
             // FoF/PS Pro Drums
             ProDrums_Accent = 1 << 12,
             ProDrums_Ghost = 1 << 13,
         }
 
-        public const Flags PER_NOTE_FLAGS = Flags.ProDrums_Cymbal | Flags.InstrumentPlus | Flags.ProDrums_Accent | Flags.ProDrums_Ghost;
+        public const Flags PER_NOTE_FLAGS = Flags.ProDrums_Cymbal | Flags.InstrumentPlus | Flags.ProDrums_Accent | Flags.ProDrums_Ghost
+            | Flags.RS_PalmMute | Flags.RS_FretMute | Flags.RS_HammerOn | Flags.RS_PullOff | Flags.RS_Harmonic | Flags.RS_PinchHarmonic
+            | Flags.RS_Slide | Flags.RS_UnpitchedSlide | Flags.RS_Bend | Flags.RS_Tap | Flags.RS_Slap | Flags.RS_Pop | Flags.RS_Ignore
+            | Flags.RS_Tremolo | Flags.RS_Arpeggio | Flags.RS_Accent | Flags.RS_LinkNext;
 
         private readonly ID _classID = ID.Note;
 
@@ -123,6 +127,10 @@ namespace MoonscraperChartEditor.Song
         public uint length;
         public int rawNote;
         public int rsfret;
+
+        // Slide Target for Rocksmith Notes
+        public int slideTarget;
+
         public GuitarFret guitarFret
         {
             get

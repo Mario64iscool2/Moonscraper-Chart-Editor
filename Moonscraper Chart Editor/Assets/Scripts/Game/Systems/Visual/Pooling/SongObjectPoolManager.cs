@@ -22,6 +22,7 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
 
     NotePool notePool;
     StarpowerPool spPool;
+    HandshapePool hsPool;
     BPMPool bpmPool;
     TimesignaturePool tsPool;
     SectionPool sectionPool;
@@ -30,6 +31,7 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
 
     GameObject noteParent;
     GameObject starpowerParent;
+    GameObject handshapeParent;
     GameObject bpmParent;
     GameObject timesignatureParent;
     GameObject sectionParent;
@@ -38,6 +40,7 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
 
     List<Note> collectedNotesInRange = new List<Note>();
     List<Starpower> collectedStarpowerInRange = new List<Starpower>();
+    List<Handshape> collectedHandshapesInRange = new List<Handshape>();
     List<Note> prevSustainCache = new List<Note>();
 
     public float? noteVisibilityRangeYPosOverride;
@@ -51,6 +54,7 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
 
         noteParent = new GameObject("Notes");
         starpowerParent = new GameObject("Starpowers");
+        handshapeParent = new GameObject("Handshapes");
         bpmParent = new GameObject("BPMs");
         timesignatureParent = new GameObject("Time Signatures");
         sectionParent = new GameObject("Sections");
@@ -62,6 +66,9 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
 
         spPool = new StarpowerPool(starpowerParent, editor.assets.starpowerPrefab, POOL_SIZE);
         starpowerParent.transform.SetParent(groupMovePool.transform);
+        
+        hsPool = new HandshapePool(handshapeParent, editor.assets.handshapePrefab, POOL_SIZE);
+        handshapeParent.transform.SetParent(groupMovePool.transform);
 
         bpmPool = new BPMPool(bpmParent, editor.assets.bpmPrefab, POOL_SIZE);
         bpmParent.transform.SetParent(groupMovePool.transform);
@@ -244,10 +251,43 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
         }
     }
 
+     void CollectHandshapesInViewRange(IList<Handshape> handshapes)
+    {
+        collectedHandshapesInRange.Clear();
+        int index, length;
+        SongObjectHelper.GetRange(handshapes, editor.minPos, editor.maxPos, out index, out length);
+        for (int i = index; i < index + length; ++i)
+        {
+            collectedHandshapesInRange.Add(handshapes[i]);
+        }
+
+        int arrayPos = SongObjectHelper.FindClosestPosition(editor.minPos, editor.currentChart.starPower);
+        if (arrayPos != SongObjectHelper.NOTFOUND)
+        {
+            // Find the back-most position
+            while (arrayPos > 0 && editor.currentChart.starPower[arrayPos].tick >= editor.minPos)
+            {
+                --arrayPos;
+            }
+            // Render previous sp sustain in case of overlap into current position
+            if (arrayPos >= 0 && editor.currentChart.starPower[arrayPos].tick + editor.currentChart.starPower[arrayPos].length > editor.minPos &&
+                (editor.currentChart.starPower[arrayPos].tick + editor.currentChart.starPower[arrayPos].length) < editor.maxPos)
+            {
+                collectedStarpowerInRange.Add(editor.currentChart.starPower[arrayPos]);
+            }
+        }
+    }
+
     public void EnableSP(IList<Starpower> starpowers)
     {
         CollectStarpowerInViewRange(starpowers);
         spPool.Activate(collectedStarpowerInRange, 0, collectedStarpowerInRange.Count);
+    }
+
+    public void EnableHS(IList<Handshape> handshapes)
+    {
+        CollectHandshapesInViewRange(handshapes);
+        hsPool.Activate(collectedHandshapesInRange, 0, collectedHandshapesInRange.Count);
     }
 
     public void EnableBPM(IList<BPM> bpms)
@@ -294,6 +334,7 @@ public class SongObjectPoolManager : SystemManagerState.MonoBehaviourSystem
 
         SetInViewRangeDirty(chart.notes);
         SetInViewRangeDirty(chart.starPower);
+        SetInViewRangeDirty(chart.handShape);
         SetInViewRangeDirty(chart.events);
         SetInViewRangeDirty(song.eventsAndSections);
         SetInViewRangeDirty(song.syncTrack);

@@ -76,15 +76,8 @@ public class ToolPanelController : MonoBehaviour {
         else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectNote))
             noteSelect.onClick.Invoke();
 
-        else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectStarpower))
-            if (Globals.RSMode)
-            {
-                handShapeSelect.onClick.Invoke();
-            }
-            else
-            {
+        else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectStarpower) && !(Globals.RSMode))
                 starpowerSelect.onClick.Invoke();
-            }
                 
         else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectBpm))
             bpmSelect.onClick.Invoke();
@@ -97,7 +90,8 @@ public class ToolPanelController : MonoBehaviour {
 
         else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectEvent))
             eventSelect.onClick.Invoke();
-        else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectHandshape))
+
+        else if (MSChartEditorInput.GetInputDown(MSChartEditorInputActions.ToolSelectHandshape) && Globals.RSMode)
             handShapeSelect.onClick.Invoke();
     }
 

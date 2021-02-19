@@ -34,6 +34,7 @@ public class NotePropertiesPanelController : PropertiesPanelController {
     public Toggle ignoreToggle;
     public Toggle accentToggle;
     public Toggle rsTapToggle;
+    public Toggle linkNextToggle;
 
     public GameObject noteToolObject;
     PlaceNoteController noteToolController;
@@ -124,7 +125,7 @@ public class NotePropertiesPanelController : PropertiesPanelController {
                 fretText.text = "Fret: " + noteTypeString;
                 positionText.text = "Position: " + currentNote.tick.ToString();
                 sustainText.text = "Length: " + currentNote.length.ToString();
-                scrollView.SetActive(true);
+                scrollView.SetActive(false);
             }
             else
             {
@@ -133,7 +134,7 @@ public class NotePropertiesPanelController : PropertiesPanelController {
                 fretText.text = "Fret: " + fretString;
                 positionText.text = "Position: " + currentNote.tick.ToString();
                 sustainText.text = "Length: " + currentNote.length.ToString();
-                scrollView.SetActive(false);
+                scrollView.SetActive(true);
             }
             
 
@@ -195,8 +196,9 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         slapToggle.isOn = (flags & Note.Flags.RS_Slap) != 0;
         popToggle.isOn = (flags & Note.Flags.RS_Pop) != 0;
         rsTapToggle.isOn = (flags & Note.Flags.RS_Tap) != 0;
+        linkNextToggle.isOn = (flags & Note.Flags.RS_LinkNext) != 0;
 
-        
+
         toggleBlockingActive = false;
     }
 
@@ -226,7 +228,8 @@ public class NotePropertiesPanelController : PropertiesPanelController {
         slapToggle.gameObject.SetActive(proStringsMode);
         popToggle.gameObject.SetActive(proStringsMode);
         rsTapToggle.gameObject.SetActive(proStringsMode);
-        
+        linkNextToggle.gameObject.SetActive(proStringsMode);
+
 
         if (!drumsMode)
         {
@@ -652,7 +655,10 @@ public class NotePropertiesPanelController : PropertiesPanelController {
             if (currentNote != null)
             {
                 if (slideToggle.isOn)
+                {
                     newFlags |= Note.Flags.RS_Slide;
+                    newFlags &= ~Note.Flags.RS_UnpitchedSlide;
+                }
                 else
                     newFlags &= ~Note.Flags.RS_Slide;
             }
@@ -690,7 +696,11 @@ public class NotePropertiesPanelController : PropertiesPanelController {
             if (currentNote != null)
             {
                 if (unpitchedSlideToggle.isOn)
+                {
                     newFlags |= Note.Flags.RS_UnpitchedSlide;
+                    newFlags &= ~Note.Flags.RS_Slide;
+                }
+
                 else
                     newFlags &= ~Note.Flags.RS_UnpitchedSlide;
             }
@@ -926,6 +936,46 @@ public class NotePropertiesPanelController : PropertiesPanelController {
                     newFlags |= Note.Flags.RS_Accent;
                 else
                     newFlags &= ~Note.Flags.RS_Accent;
+            }
+
+            SetNewFlags(currentNote, newFlags);
+        }
+    }
+
+
+    public void setLinkNext()
+    {
+        if (toggleBlockingActive)
+            return;
+
+        if (IsInNoteTool())
+        {
+            SetLinkNextNoteTool();
+        }
+        else
+        {
+            SetLinkNextNote();
+        }
+    }
+
+    void SetLinkNextNoteTool()
+    {
+        if (linkNextToggle.interactable)
+            SetNoteToolFlag(ref noteToolController.desiredFlags, linkNextToggle, Note.Flags.RS_LinkNext);
+    }
+
+    void SetLinkNextNote()
+    {
+        if (currentNote == prevNote)
+        {
+            var newFlags = currentNote.flags;
+
+            if (currentNote != null)
+            {
+                if (linkNextToggle.isOn)
+                    newFlags |= Note.Flags.RS_LinkNext;
+                else
+                    newFlags &= ~Note.Flags.RS_LinkNext;
             }
 
             SetNewFlags(currentNote, newFlags);

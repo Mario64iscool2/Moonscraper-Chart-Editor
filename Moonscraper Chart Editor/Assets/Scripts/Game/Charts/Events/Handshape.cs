@@ -12,6 +12,8 @@ namespace MoonscraperChartEditor.Song
 
         public uint length;
 
+        public int string1fret, string2fret, string3fret, string4fret, string5fret, string6fret;
+
         public Handshape(uint _position, uint _length) : base(_position)
         {
             length = _length;

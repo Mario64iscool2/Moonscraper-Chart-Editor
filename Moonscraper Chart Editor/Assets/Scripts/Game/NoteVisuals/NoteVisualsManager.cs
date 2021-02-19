@@ -120,6 +120,13 @@ public class NoteVisualsManager : MonoBehaviour {
         {
             position.x = -0.5f;
             text.text = note.GetRSFret().ToString();
+            if ((note.flags & (Note.Flags.RS_Slide)) != 0)
+            {
+                if (note.slideTarget < note.rsfret)
+                    text.text += "\"" + note.slideTarget.ToString();
+                else if (note.slideTarget > note.rsfret)
+                    text.text += "/" + note.slideTarget.ToString();
+            }
         }
 
         text.transform.localPosition = position;
